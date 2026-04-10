@@ -1,7 +1,10 @@
 package com.ifpr.androidapptemplate.baseclasses
 
+import com.google.firebase.database.IgnoreExtraProperties
+
 data class Item(
-    var endereco: String? = null,
-    val base64Image: String? = null,
-    val imageUrl: String? = null
+    val uid: String? = "",
+    val endereco: String? = "",
+    val valor: String? = "",
+    val categoria: String? = ""
 )

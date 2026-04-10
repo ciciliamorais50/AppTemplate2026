@@ -1,8 +1,11 @@
 package com.ifpr.androidapptemplate.baseclasses
 
+import com.google.firebase.database.IgnoreExtraProperties
+
+@IgnoreExtraProperties
 data class Usuario(
-    var key: String? = null,
-    var nome: String? = null,
-    var email: String? = null,
-    var endereco: String? = null
+    val key: String? = null,
+    val nome: String? = null,
+    val email: String? = null,
+    val endereco: String? = null
 )
