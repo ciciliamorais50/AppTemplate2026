@@ -1,161 +1,133 @@
 package com.ifpr.androidapptemplate.ui.dashboard
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Base64
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.StorageReference
-import com.ifpr.androidapptemplate.R
 import com.ifpr.androidapptemplate.baseclasses.Item
-import com.ifpr.androidapptemplate.databinding.FragmentDashboardBinding
+import com.ifpr.androidapptemplate.R
 
 
-class DashboardFragment : Fragment() {
+class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
-    private var _binding: FragmentDashboardBinding? = null
+    private lateinit var spinnerOrigem: Spinner
+    private lateinit var spinnerDestino: Spinner
+    private lateinit var etValorMedida: EditText
+    private lateinit var etIdentificacao: EditText
+    private lateinit var tvResultado: TextView
+    private lateinit var btnSalvar: Button
 
-    private lateinit var enderecoEditText: EditText
-    private lateinit var itemImageView: ImageView
-    private var imageUri: Uri? = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
+        // pegar views
+        spinnerOrigem = view.findViewById(R.id.spinnerOrigem)
+        spinnerDestino = view.findViewById(R.id.spinnerDestino)
+        etValorMedida = view.findViewById(R.id.etValorMedida)
+        etIdentificacao = view.findViewById(R.id.etIdentificacao)
+        tvResultado = view.findViewById(R.id.tvResultadoConversao)
+        btnSalvar = view.findViewById(R.id.salvarItemButton)
 
-    //TODO("Declare aqui as outras variaveis do tipo EditText que foram inseridas no layout")
-    private lateinit var salvarButton: Button
-    private lateinit var selectImageButton: Button
-    private lateinit var databaseReference: DatabaseReference
-    private lateinit var storageReference: StorageReference
-    private lateinit var auth: FirebaseAuth
+        setupConversor()
 
-    companion object {
-        private const val PICK_IMAGE_REQUEST = 1
+        btnSalvar.setOnClickListener {
+            salvarNoFirebase()
+        }
     }
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+    private fun setupConversor() {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        val dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+        val unidades = arrayOf(
+            "Metros (m)",
+            "Centímetros (cm)",
+            "Quilômetros (km)",
+            "Gramas (g)",
+            "Quilos (kg)"
+        )
 
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_dropdown_item,
+            unidades
+        )
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
+        spinnerOrigem.adapter = adapter
+        spinnerDestino.adapter = adapter
+
+        etValorMedida.addTextChangedListener {
+            calcular()
         }
 
-        val view = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        itemImageView = view.findViewById(R.id.image_item)
-        salvarButton = view.findViewById(R.id.salvarItemButton)
-        selectImageButton = view.findViewById(R.id.button_select_image)
-        enderecoEditText = view.findViewById(R.id.enderecoItemEditText)
-        //TODO("Capture aqui os outro campos que foram inseridos no layout. Por exemplo, ate
-        // o momento so foi capturado o endereco (EditText)")
+        val listener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                calcular()
+            }
 
-        auth = FirebaseAuth.getInstance()
-
-        selectImageButton.setOnClickListener {
-            openFileChooser()
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        salvarButton.setOnClickListener {
-            salvarItem()
+        spinnerOrigem.onItemSelectedListener = listener
+        spinnerDestino.onItemSelectedListener = listener
+    }
+
+    private fun calcular() {
+
+        val valor = etValorMedida.text.toString().toDoubleOrNull() ?: 0.0
+
+        val de = spinnerOrigem.selectedItem?.toString() ?: ""
+        val para = spinnerDestino.selectedItem?.toString() ?: ""
+
+        var resultado = valor
+
+        when {
+            de.contains("Metros") && para.contains("Centímetros") -> resultado = valor * 100
+            de.contains("Centímetros") && para.contains("Metros") -> resultado = valor / 100
+            de.contains("Quilômetros") && para.contains("Metros") -> resultado = valor * 1000
+            de.contains("Metros") && para.contains("Quilômetros") -> resultado = valor / 1000
+            de.contains("Quilos") && para.contains("Gramas") -> resultado = valor * 1000
+            de.contains("Gramas") && para.contains("Quilos") -> resultado = valor / 1000
         }
 
-        return view
+        tvResultado.text = "%.2f".format(resultado)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+    private fun salvarNoFirebase() {
 
-    private fun openFileChooser() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
+        val user = FirebaseAuth.getInstance().currentUser ?: return
 
-    private fun salvarItem() {
-        //TODO("Capture aqui o conteudo que esta nos outros editTexts que foram criados")
-        val endereco = enderecoEditText.text.toString().trim()
+        val iden = etIdentificacao.text.toString().trim()
+        val valor = etValorMedida.text.toString().trim()
+        val resultado = tvResultado.text.toString()
 
-        if (endereco.isEmpty() || imageUri == null) {
-            Toast.makeText(context, "Por favor, preencha todos os campos", Toast.LENGTH_SHORT)
-                .show()
+        if (iden.isEmpty() || valor.isEmpty()) {
+            Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT).show()
             return
         }
-        uploadImageToFirestore()
-    }
 
+        val item = Item(
+            uid = user.uid,
+            endereco = iden,
+            valor = "$valor ➜ $resultado",
+            categoria = "Conversão"
+        )
 
-    private fun uploadImageToFirestore() {
-        if (imageUri != null) {
-            val inputStream = context?.contentResolver?.openInputStream(imageUri!!)
-            val bytes = inputStream?.readBytes()
-            inputStream?.close()
+        FirebaseDatabase.getInstance()
+            .getReference("itens")
+            .child(user.uid)
+            .push()
+            .setValue(item)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Salvo com sucesso!", Toast.LENGTH_SHORT).show()
 
-            if (bytes != null) {
-                val base64Image = Base64.encodeToString(bytes, Base64.DEFAULT)
-                val endereco = enderecoEditText.text.toString().trim()
-                //TODO("Capture aqui o conteudo que esta nos outros editTexts que foram criados")
-
-                val item = Item(endereco, base64Image)
-
-                saveItemIntoDatabase(item)
+                etIdentificacao.text.clear()
+                etValorMedida.text.clear()
+                tvResultado.text = "0.00"
             }
-        }
-    }
-
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK
-            && data != null && data.data != null
-        ) {
-            imageUri = data.data
-            Glide.with(this).load(imageUri).into(itemImageView)
-        }
-    }
-
-    private fun saveItemIntoDatabase(item: Item) {
-        //TODO("Altere a raiz que sera criada no seu banco de dados do realtime database.
-        // Renomeie a raiz itens")
-        databaseReference = FirebaseDatabase.getInstance().getReference("itens")
-
-        // Cria uma chave unica para o novo item
-        val itemId = databaseReference.push().key
-        if (itemId != null) {
-            databaseReference.child(auth.uid.toString()).child(itemId).setValue(item)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Item cadastrado com sucesso!", Toast.LENGTH_SHORT)
-                        .show()
-                    requireActivity().supportFragmentManager.popBackStack()
-                }.addOnFailureListener {
-                    Toast.makeText(context, "Falha ao cadastrar o item", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(context, "Erro ao gerar o ID do item", Toast.LENGTH_SHORT).show()
-        }
+            .addOnFailureListener {
+                Toast.makeText(context, "Erro ao salvar!", Toast.LENGTH_SHORT).show()
+            }
     }
 }
