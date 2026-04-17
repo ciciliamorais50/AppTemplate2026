@@ -109,7 +109,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
         val item = Item(
             uid = user.uid,
-            endereco = iden,
+            identificador = iden,
             valor = "$valor ➜ $resultado",
             categoria = "Conversão"
         )
