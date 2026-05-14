@@ -14,18 +14,11 @@ import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.ifpr.androidapptemplate.R
 import com.ifpr.androidapptemplate.baseclasses.Usuario
-import com.ifpr.androidapptemplate.databinding.FragmentPerfilUsuarioBinding
 
 class PerfilUsuarioFragment : Fragment() {
-
-    private var _binding: FragmentPerfilUsuarioBinding? = null
 
     private lateinit var userProfileImageView: ImageView
     private lateinit var registerNameEditText: EditText
@@ -38,11 +31,6 @@ class PerfilUsuarioFragment : Fragment() {
     private lateinit var usersReference: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,7 +38,6 @@ class PerfilUsuarioFragment : Fragment() {
     ): View {
         val view = inflater.inflate(R.layout.fragment_perfil_usuario, container, false)
 
-        // Inicializa o Firebase Auth
         auth = FirebaseAuth.getInstance()
 
         userProfileImageView = view.findViewById(R.id.userProfileImageView)
@@ -62,15 +49,8 @@ class PerfilUsuarioFragment : Fragment() {
         registerButton = view.findViewById(R.id.salvarButton)
         sairButton = view.findViewById(R.id.sairButton)
 
-        try {
-            usersReference = FirebaseDatabase.getInstance().getReference("users")
-        } catch (e: Exception) {
-            Log.e("DatabaseReference", "Erro ao obter referência para o Firebase DatabaseReference", e)
-            // Trate o erro conforme necessário, por exemplo:
-            Toast.makeText(context, "Erro ao acessar o Firebase DatabaseReference", Toast.LENGTH_SHORT).show()
-        }
+        usersReference = FirebaseDatabase.getInstance().getReference("users")
 
-        // Acessar currentUser
         val user = auth.currentUser
 
         if (user != null) {
@@ -107,23 +87,15 @@ class PerfilUsuarioFragment : Fragment() {
 
     private fun signOut() {
         auth.signOut()
-        Toast.makeText(
-            context,
-            "Logout realizado com sucesso!",
-            Toast.LENGTH_SHORT
-        ).show()
-
+        Toast.makeText(context, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
         requireActivity().finish()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Exibe os dados do usuario logado, se disponivel
-
-        // Acessar currentUser
-        var userFirebase = auth.currentUser
-        if(userFirebase != null){
+        val userFirebase = auth.currentUser
+        if (userFirebase != null) {
             registerNameEditText.setText(userFirebase.displayName)
             registerEmailEditText.setText(userFirebase.email)
 
@@ -131,81 +103,84 @@ class PerfilUsuarioFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
-
-
     fun recuperarDadosUsuario(usuarioKey: String) {
         val databaseReference = FirebaseDatabase.getInstance().getReference("users")
 
-        databaseReference.child(usuarioKey).addListenerForSingleValueEvent(object :
-            ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    val usuario = snapshot.getValue(Usuario::class.java)
-                    usuario?.let {
-                        registerEnderecoEditText.setText(it.endereco ?: "")
+        databaseReference.child(usuarioKey)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val usuario = snapshot.getValue(Usuario::class.java)
+                        usuario?.let {
+                            registerEnderecoEditText.setText(it.endereco ?: "")
+                        }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("FirebaseError", "Erro ao recuperar dados: ${error.message}")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("FirebaseError", "Erro ao recuperar dados: ${error.message}")
+                }
+            })
     }
 
     private fun updateUser() {
         val name = registerNameEditText.text.toString().trim()
         val endereco = registerEnderecoEditText.text.toString().trim()
 
-        // Acessar currentUser
         val user = auth.currentUser
 
-        // Verifica se o usuário atual já está definido
         if (user != null) {
-            // Se o usuário já existe, atualiza os dados
             updateProfile(user, name, endereco)
         } else {
-            Toast.makeText(context, "Não foi possível encontrar o usuário logado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Usuário não encontrado", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun updateProfile(user: FirebaseUser?, displayName: String, endereco: String) {
+    private fun updateProfile(user: FirebaseUser, displayName: String, endereco: String) {
+
         val profileUpdates = UserProfileChangeRequest.Builder()
             .setDisplayName(displayName)
             .build()
 
-        val usuario = Usuario(user?.uid.toString() , displayName, user?.email, endereco, )
+        val usuario = Usuario(
+            user.uid,
+            displayName,
+            user.email,
+            endereco
+        )
 
-        user?.updateProfile(profileUpdates)
-            ?.addOnCompleteListener { task ->
+        user.updateProfile(profileUpdates)
+            .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     saveUserToDatabase(usuario)
-                    Toast.makeText(context, "Nome do usuario alterado com sucesso.",
-                        Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(context, "Não foi possivel alterar o nome do usuario.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Erro ao atualizar perfil",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
     }
 
     private fun saveUserToDatabase(usuario: Usuario) {
-        if (usuario.key != null) {
-            usersReference.child(usuario.key.toString()).setValue(usuario)
-                .addOnSuccessListener {
-                    Toast.makeText(context, "Usuario atualizado com sucesso!", Toast.LENGTH_SHORT)
-                        .show()
-                    requireActivity().supportFragmentManager.popBackStack()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Falha ao atualizar o usuario", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(context, "ID invalido", Toast.LENGTH_SHORT).show()
-        }
+        usersReference.child(usuario.key!!)
+            .setValue(usuario)
+            .addOnSuccessListener {
+                Toast.makeText(
+                    context,
+                    "Usuário atualizado com sucesso!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // 🔥 REMOVIDO o popBackStack (causava retorno ao login)
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    context,
+                    "Erro ao salvar usuário",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
     }
 }
