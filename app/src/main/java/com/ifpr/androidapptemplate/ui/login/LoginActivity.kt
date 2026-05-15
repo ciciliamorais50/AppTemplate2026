@@ -43,31 +43,31 @@ class LoginActivity : AppCompatActivity() {
 
         FirebaseApp.initializeApp(this)
 
-        // Inicializa o Firebase Auth
         firebaseAuth = FirebaseAuth.getInstance()
 
         emailEditText = findViewById(R.id.edit_text_email)
         passwordEditText = findViewById(R.id.edit_text_password)
         loginButton = findViewById(R.id.button_login)
         registerLink = findViewById(R.id.registerLink)
-        btnGoogleSignIn = findViewById<SignInButton>(R.id.btnGoogleSignIn)
+        btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn)
 
-        val registerLink: TextView = findViewById(R.id.registerLink)
         registerLink.setOnClickListener {
-            val intent: Intent = Intent(
-                applicationContext,
-                CadastroUsuarioActivity::class.java
-            )
+            val intent = Intent(applicationContext, CadastroUsuarioActivity::class.java)
             startActivity(intent)
         }
 
         loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Preencha email e senha!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             signIn(email, password)
         }
 
-        // Configuration do Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
@@ -75,7 +75,6 @@ class LoginActivity : AppCompatActivity() {
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        // Set up the sign-in button click handler
         btnGoogleSignIn.setOnClickListener {
             signInGoogle()
         }
@@ -89,8 +88,7 @@ class LoginActivity : AppCompatActivity() {
                     updateUI(firebaseAuth.currentUser)
                 } else {
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
+                    Toast.makeText(baseContext, "Email ou senha incorretos.", Toast.LENGTH_SHORT).show()
                     updateUI(null)
                 }
             }
@@ -98,15 +96,8 @@ class LoginActivity : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            // Navegue para a proxima atividade
             val intent = Intent(applicationContext, MainActivity::class.java)
             startActivity(intent)
-        } else {
-            Toast.makeText(
-                applicationContext,
-                "Email ou senha incorretos",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 
@@ -120,15 +111,11 @@ class LoginActivity : AppCompatActivity() {
         firebaseAuth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // Login bem-sucedido, navegar para a atividade principal ou atualizar UI
                     Log.d(TAG, "signInWithGoogle:success")
                     updateUI(firebaseAuth.currentUser)
                 } else {
-                    // Tratar falha de login
                     Log.w(TAG, "signInWithGoogle:failure", task.exception)
-                    Toast.makeText(baseContext, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    updateUI(null)
+                    Toast.makeText(baseContext, "Falha na autenticação Google.", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -142,7 +129,6 @@ class LoginActivity : AppCompatActivity() {
                 val account = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
-                // Tratar falha de login
                 Log.w(TAG, "onActivityResult:failure", task.exception)
             }
         }

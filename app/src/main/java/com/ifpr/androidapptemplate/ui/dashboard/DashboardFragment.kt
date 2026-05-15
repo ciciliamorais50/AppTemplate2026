@@ -10,7 +10,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.ifpr.androidapptemplate.baseclasses.Item
 import com.ifpr.androidapptemplate.R
 
-
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private lateinit var spinnerOrigem: Spinner
@@ -23,7 +22,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // pegar views
         spinnerOrigem = view.findViewById(R.id.spinnerOrigem)
         spinnerDestino = view.findViewById(R.id.spinnerDestino)
         etValorMedida = view.findViewById(R.id.etValorMedida)
@@ -39,7 +37,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun setupConversor() {
-
         val unidades = arrayOf(
             "Metros (m)",
             "Centímetros (cm)",
@@ -57,15 +54,12 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
         spinnerOrigem.adapter = adapter
         spinnerDestino.adapter = adapter
 
-        etValorMedida.addTextChangedListener {
-            calcular()
-        }
+        etValorMedida.addTextChangedListener { calcular() }
 
         val listener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 calcular()
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -74,9 +68,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun calcular() {
-
         val valor = etValorMedida.text.toString().toDoubleOrNull() ?: 0.0
-
         val de = spinnerOrigem.selectedItem?.toString() ?: ""
         val para = spinnerDestino.selectedItem?.toString() ?: ""
 
@@ -95,7 +87,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun salvarNoFirebase() {
-
         val user = FirebaseAuth.getInstance().currentUser ?: return
 
         val iden = etIdentificacao.text.toString().trim()
@@ -114,20 +105,19 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             categoria = "Conversão"
         )
 
-        FirebaseDatabase.getInstance()
+        FirebaseDatabase.getInstance("https://conversor-de-unidades-8181f-default-rtdb.firebaseio.com")
             .getReference("itens")
             .child(user.uid)
             .push()
             .setValue(item)
             .addOnSuccessListener {
                 Toast.makeText(context, "Salvo com sucesso!", Toast.LENGTH_SHORT).show()
-
                 etIdentificacao.text.clear()
                 etValorMedida.text.clear()
                 tvResultado.text = "0.00"
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Erro ao salvar!", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(context, "Erro ao salvar: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
