@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.view.*
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +31,13 @@ class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private lateinit var currentAddressTextView: TextView
+    private lateinit var distanciaTextView: TextView
+    private lateinit var btnCalcularDistancia: Button
+    private var ultimaLocalizacao: Location? = null
+
+    private val PONTO_FIXO_LAT = -26.4837
+    private val PONTO_FIXO_LNG = -51.9978
+    private val PONTO_FIXO_NOME = "IFPR Campus Palmas"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +47,17 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         currentAddressTextView = view.findViewById(R.id.currentAddressTextView)
+        distanciaTextView = view.findViewById(R.id.distanciaTextView)
+        btnCalcularDistancia = view.findViewById(R.id.btnCalcularDistancia)
+
+        btnCalcularDistancia.setOnClickListener {
+            val loc = ultimaLocalizacao
+            if (loc != null) {
+                calcularDistancia(loc)
+            } else {
+                Toast.makeText(context, "Aguarde, obtendo localização...", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         val itemContainer = view.findViewById<LinearLayout>(R.id.itemContainer)
         carregarItens(itemContainer)
@@ -60,10 +80,7 @@ class HomeFragment : Fragment() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
             return
         }
 
@@ -74,6 +91,7 @@ class HomeFragment : Fragment() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
+                ultimaLocalizacao = location
                 obterEndereco(location.latitude, location.longitude)
             }
         }
@@ -101,6 +119,23 @@ class HomeFragment : Fragment() {
         } catch (e: Exception) {
             currentAddressTextView.text = "📍 Erro ao obter endereço"
         }
+    }
+
+    private fun calcularDistancia(location: Location) {
+        val pontoFixo = Location("pontoFixo").apply {
+            latitude = PONTO_FIXO_LAT
+            longitude = PONTO_FIXO_LNG
+        }
+
+        val distanciaMetros = location.distanceTo(pontoFixo)
+
+        val distanciaFormatada = if (distanciaMetros >= 1000) {
+            "%.1f km".format(distanciaMetros / 1000)
+        } else {
+            "%.0f m".format(distanciaMetros)
+        }
+
+        distanciaTextView.text = "🏫 Distância até $PONTO_FIXO_NOME: $distanciaFormatada"
     }
 
     override fun onRequestPermissionsResult(
