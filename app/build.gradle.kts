@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.ifpr.androidapptemplate"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -28,11 +28,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
@@ -50,22 +50,22 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
 
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.database.ktx)
-    implementation(platform(libs.firebase.bom))
-    implementation(platform(libs.firebase.bom.v34100))
-    implementation(libs.firebase.auth)
-    implementation(libs.glide)
     implementation(libs.firebase.storage.ktx)
-    implementation(libs.play.services.auth)
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.firebase.crashlytics.buildtools)
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.firebase.ai)
+
+    implementation(libs.glide)
+    implementation(libs.play.services.auth)
+    implementation(libs.play.services.location)
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.google.firebase.analytics)
-    implementation(libs.play.services.location)
-    implementation(libs.firebase.ai)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
