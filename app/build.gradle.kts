@@ -66,6 +66,10 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.google.firebase.analytics)
+    implementation(libs.play.services.location)
+    implementation(libs.firebase.ai)
+    implementation(libs.firebase.messaging.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
