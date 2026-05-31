@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.google.firebase.analytics)
     implementation(libs.play.services.location)
     implementation(libs.firebase.ai)
+    implementation("com.google.firebase:firebase-appcheck-debug:18.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
