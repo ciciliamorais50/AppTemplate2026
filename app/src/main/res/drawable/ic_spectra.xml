@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Fundo preto -->
+    <path
+        android:pathData="M0,0 L200,0 L200,200 L0,200 Z"
+        android:fillColor="#0a0a14"/>
+
+    <!-- Triângulo roxo -->
+    <path
+        android:pathData="M100,20 L170,140 L30,140 Z"
+        android:strokeColor="#7c3aed"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"/>
+
+    <!-- Olho amendoado -->
+    <path
+        android:pathData="M55,90 Q100,55 145,90 Q100,125 55,90 Z"
+        android:strokeColor="#22c55e"
+        android:strokeWidth="3"
+        android:fillColor="#7c3aed"
+        android:fillAlpha="0.2"/>
+
+    <!-- Pupila -->
+    <path
+        android:pathData="M100,90 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0"
+        android:fillColor="#22c55e"/>
+
+</vector>

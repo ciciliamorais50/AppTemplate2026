@@ -1,62 +1,216 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/ai_logic_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#0a0a14"
     android:fitsSystemWindows="true">
 
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp">
 
-        <ImageView
-            android:id="@+id/bitmapImageView"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="16dp"
-            android:layout_gravity="center"
-            android:scaleType="centerCrop"
-            android:src="@android:drawable/gallery_thumb"
-            android:contentDescription="Selecionar Imagem"/>
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="@drawable/bg_badgepurple"
+            android:layout_marginEnd="8dp"/>
 
-        <Button
-            android:id="@+id/btn_select_image"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Spectra IA"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="avaliação de peças"
+            android:textColor="#555555"
+            android:textSize="11sp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1a1a35"/>
+
+    <!-- Conteúdo com scroll -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Selecionar Imagem"
-            android:layout_marginTop="8dp" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/prompt_input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:gravity="top"
-            android:hint="Digite seu prompt"
-            android:inputType="textMultiLine"
-            android:minHeight="100dp" />
+            <!-- Preview da imagem -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="#12122a"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp">
 
-        <Button
-            android:id="@+id/btn_generate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Gerar resposta" />
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
+                    <ImageView
+                        android:id="@+id/bitmapImageView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@android:drawable/gallery_thumb"
+                        android:contentDescription="Selecionar Imagem"/>
 
-            <TextView
-                android:id="@+id/result_text"
+                    <!-- Cantos do scanner -->
+                    <View android:layout_width="20dp" android:layout_height="2dp" android:layout_gravity="top|start" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="2dp" android:layout_height="20dp" android:layout_gravity="top|start" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="20dp" android:layout_height="2dp" android:layout_gravity="top|end" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="2dp" android:layout_height="20dp" android:layout_gravity="top|end" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="20dp" android:layout_height="2dp" android:layout_gravity="bottom|start" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="2dp" android:layout_height="20dp" android:layout_gravity="bottom|start" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="20dp" android:layout_height="2dp" android:layout_gravity="bottom|end" android:layout_margin="10dp" android:background="#7c3aed"/>
+                    <View android:layout_width="2dp" android:layout_height="20dp" android:layout_gravity="bottom|end" android:layout_margin="10dp" android:background="#7c3aed"/>
+
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Botão selecionar imagem -->
+            <Button
+                android:id="@+id/btn_select_image"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="SELECIONAR IMAGEM"
+                android:textColor="#ffffff"
+                android:textSize="14sp"
+                android:letterSpacing="0.08"
+                android:backgroundTint="#7c3aed"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Card de análise -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Resultado aparecerá aqui"
-                android:textSize="16sp" />
-        </ScrollView>
-    </LinearLayout>
+                app:cardBackgroundColor="#12122a"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Título -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_scan"
+                            android:layout_marginEnd="8dp"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Análise da peça"
+                            android:textColor="#ffffff"
+                            android:textSize="15sp"
+                            android:textStyle="bold"/>
+
+                        <ProgressBar
+                            android:id="@+id/progress_analise"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:visibility="gone"
+                            android:indeterminateTint="#7c3aed"/>
+                    </LinearLayout>
+
+                    <!-- Prompt oculto (mantido para lógica) -->
+                    <EditText
+                        android:id="@+id/prompt_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Informações adicionais (opcional)"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#444444"
+                        android:textSize="13sp"
+                        android:inputType="textMultiLine"
+                        android:minHeight="60dp"
+                        android:gravity="top"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="10dp"
+                        android:background="@drawable/bg_input"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Botão gerar -->
+                    <Button
+                        android:id="@+id/btn_generate"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:text="ANALISAR PEÇA"
+                        android:textColor="#ffffff"
+                        android:textSize="13sp"
+                        android:letterSpacing="0.08"
+                        android:backgroundTint="#12122a"
+                        android:layout_marginBottom="16dp"
+                        android:foreground="?attr/selectableItemBackground"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+                    <!-- Divisor -->
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#2a2a4a"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Label resultado -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RESULTADO"
+                        android:textColor="#888888"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.08"
+                        android:layout_marginBottom="8dp"/>
+
+                    <!-- Resultado da IA -->
+                    <TextView
+                        android:id="@+id/result_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="O resultado da análise aparecerá aqui."
+                        android:textColor="#888888"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="4dp"/>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>
