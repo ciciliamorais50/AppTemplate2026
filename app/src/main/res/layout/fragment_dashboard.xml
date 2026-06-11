@@ -1,109 +1,159 @@
-<com.google.android.material.card.MaterialCardView
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="6dp">
+    android:orientation="vertical"
+    android:background="#0a0a14">
 
-    <ScrollView
+    <!-- Header -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Busca"
+                android:textColor="#888888"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MATERIAIS"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.2"/>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            app:cardCornerRadius="22dp"
+            app:cardBackgroundColor="#7c3aed33"
+            app:cardElevation="0dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="🔍"
+                android:textSize="18sp"
+                android:gravity="center"/>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <!-- Campo de busca -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="10dp"
+        app:cardBackgroundColor="#12122a"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:gravity="center_vertical">
 
-            <!-- TÍTULO -->
-            <TextView
-                android:id="@+id/text_dashboard"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Conversor de Unidades"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"/>
-
-            <!-- IDENTIFICAÇÃO -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Identificação">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etIdentificacao"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- VALOR -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="Valor">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etValorMedida"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- ORIGEM -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="De:"
-                android:layout_marginTop="16dp"
-                android:textStyle="bold"/>
+                android:text="🔍"
+                android:textSize="16sp"
+                android:layout_marginEnd="10dp"/>
 
-            <Spinner
-                android:id="@+id/spinnerOrigem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <!-- DESTINO -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Para:"
-                android:layout_marginTop="12dp"
-                android:textStyle="bold"/>
-
-            <Spinner
-                android:id="@+id/spinnerDestino"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <!-- RESULTADO -->
-            <TextView
-                android:id="@+id/tvResultadoConversao"
+            <EditText
+                android:id="@+id/etBusca"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="0.00"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:textColor="#6200EE"
-                android:gravity="center"
-                android:layout_marginTop="20dp"/>
-
-            <!-- BOTÃO -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/salvarItemButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Salvar Conversão"
-                android:layout_marginTop="20dp"
-                app:cornerRadius="12dp"/>
-
+                android:background="@android:color/transparent"
+                android:hint="Código ou característica..."
+                android:textColor="#f0f0ff"
+                android:textColorHint="#444466"
+                android:textSize="14sp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:singleLine="true"/>
         </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
+    <!-- Chips de classe -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="14dp">
+
+        <LinearLayout
+            android:id="@+id/containerChips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"/>
+
+    </HorizontalScrollView>
+
+    <!-- Label resultados -->
+    <TextView
+        android:id="@+id/tvLabelResultados"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#888888"
+        android:textSize="11sp"
+        android:letterSpacing="0.08"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone"/>
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <!-- Texto vazio -->
+    <TextView
+        android:id="@+id/tvVazio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Digite algo para buscar"
+        android:textColor="#555577"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:paddingTop="48dp"/>
+
+    <!-- Lista resultados -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/containerResultados"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="80dp"/>
     </ScrollView>
 
-</com.google.android.material.card.MaterialCardView>
+</LinearLayout>

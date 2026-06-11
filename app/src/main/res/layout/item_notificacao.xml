@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="#12122a"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:id="@+id/tvCodigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#22c55e"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvClasse"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#555577"
+                android:textSize="11sp"/>
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvDescricao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#f0f0ff"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp"/>
+
+        <TextView
+            android:id="@+id/tvComentario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:fontFamily="serif"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/layoutBotoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnAprovar"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="Aprovar"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:backgroundTint="#22c55e"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnRejeitar"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="Rejeitar"
+                android:textSize="12sp"
+                android:textColor="#ffffff"
+                android:backgroundTint="#ef4444"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

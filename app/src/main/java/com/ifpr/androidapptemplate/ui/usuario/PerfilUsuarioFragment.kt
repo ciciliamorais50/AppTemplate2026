@@ -1,186 +1,83 @@
 package com.ifpr.androidapptemplate.ui.usuario
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.UserProfileChangeRequest
-import com.google.firebase.database.*
 import com.ifpr.androidapptemplate.R
-import com.ifpr.androidapptemplate.baseclasses.Usuario
+import com.ifpr.androidapptemplate.ui.cadastro.AprovacaoRepository
+import com.ifpr.androidapptemplate.ui.cadastro.MaterialRepository
+import com.ifpr.androidapptemplate.ui.login.LoginActivity
+import kotlinx.coroutines.launch
 
 class PerfilUsuarioFragment : Fragment() {
 
-    private lateinit var userProfileImageView: ImageView
-    private lateinit var registerNameEditText: EditText
-    private lateinit var registerEmailEditText: EditText
-    private lateinit var registerEnderecoEditText: EditText
-    private lateinit var registerPasswordEditText: EditText
-    private lateinit var registerConfirmPasswordEditText: EditText
-    private lateinit var registerButton: Button
-    private lateinit var sairButton: Button
-    private lateinit var usersReference: DatabaseReference
-    private lateinit var auth: FirebaseAuth
+    private val aprovacaoRepo = AprovacaoRepository()
+    private val materialRepo = MaterialRepository()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_perfil_usuario, container, false)
-
-        auth = FirebaseAuth.getInstance()
-
-        userProfileImageView = view.findViewById(R.id.userProfileImageView)
-        registerNameEditText = view.findViewById(R.id.registerNameEditText)
-        registerEmailEditText = view.findViewById(R.id.registerEmailEditText)
-        registerEnderecoEditText = view.findViewById(R.id.registerEnderecoEditText)
-        registerPasswordEditText = view.findViewById(R.id.registerPasswordEditText)
-        registerConfirmPasswordEditText = view.findViewById(R.id.registerConfirmPasswordEditText)
-        registerButton = view.findViewById(R.id.salvarButton)
-        sairButton = view.findViewById(R.id.sairButton)
-
-        usersReference = FirebaseDatabase.getInstance().getReference("users")
-
-        val user = auth.currentUser
-
-        if (user != null) {
-            sairButton.visibility = View.VISIBLE
-            registerPasswordEditText.visibility = View.GONE
-            registerConfirmPasswordEditText.visibility = View.GONE
-            registerEmailEditText.isEnabled = false
-        }
-
-        user?.let {
-            val photoUrl = it.photoUrl
-
-            if (photoUrl != null && photoUrl.toString().isNotEmpty()) {
-                Glide.with(this)
-                    .load(photoUrl)
-                    .placeholder(R.mipmap.ic_default_user)
-                    .error(R.mipmap.ic_default_user)
-                    .into(userProfileImageView)
-            } else {
-                userProfileImageView.setImageResource(R.mipmap.ic_default_user)
-            }
-        }
-
-        registerButton.setOnClickListener {
-            updateUser()
-        }
-
-        sairButton.setOnClickListener {
-            signOut()
-        }
-
-        return view
-    }
-
-    private fun signOut() {
-        auth.signOut()
-        Toast.makeText(context, "Logout realizado com sucesso!", Toast.LENGTH_SHORT).show()
-        requireActivity().finish()
+        return inflater.inflate(R.layout.fragment_perfil_usuario, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userFirebase = auth.currentUser
-        if (userFirebase != null) {
-            registerNameEditText.setText(userFirebase.displayName)
-            registerEmailEditText.setText(userFirebase.email)
+        val user = FirebaseAuth.getInstance().currentUser
 
-            recuperarDadosUsuario(userFirebase.uid)
+        val tvNome = view.findViewById<TextView>(R.id.tvNome)
+        val tvEmail = view.findViewById<TextView>(R.id.tvEmail)
+        val tvPapel = view.findViewById<TextView>(R.id.tvPapel)
+        val tvIniciais = view.findViewById<TextView>(R.id.tvIniciais)
+        val tvTotalMateriais = view.findViewById<TextView>(R.id.tvTotalMateriais)
+        val btnTrocarPapel = view.findViewById<Button>(R.id.btnTrocarPapel)
+        val btnSair = view.findViewById<Button>(R.id.btnSair)
+
+        val nome = user?.displayName ?: user?.email?.substringBefore("@") ?: "Usuário"
+        val email = user?.email ?: ""
+        tvNome.text = nome
+        tvEmail.text = email
+        tvIniciais.text = nome.firstOrNull()?.uppercase() ?: "U"
+
+        lifecycleScope.launch {
+            val papel = aprovacaoRepo.getPapelUsuario()
+            tvPapel.text = if (papel == "aprovador") "Aprovador" else "Cadastrador"
+
+            val resultado = materialRepo.listarMeusMateriais()
+            resultado.onSuccess { lista ->
+                tvTotalMateriais.text = "${lista.size}"
+            }
         }
-    }
 
-    fun recuperarDadosUsuario(usuarioKey: String) {
-        val databaseReference = FirebaseDatabase.getInstance().getReference("users")
-
-        databaseReference.child(usuarioKey)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val usuario = snapshot.getValue(Usuario::class.java)
-                        usuario?.let {
-                            registerEnderecoEditText.setText(it.endereco ?: "")
-                        }
+        btnTrocarPapel.setOnClickListener {
+            val opcoes = arrayOf("Cadastrador", "Aprovador")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Selecionar papel")
+                .setItems(opcoes) { _, which ->
+                    val novoPapel = if (which == 0) "cadastrador" else "aprovador"
+                    lifecycleScope.launch {
+                        aprovacaoRepo.setPapelUsuario(novoPapel)
+                        tvPapel.text = if (novoPapel == "aprovador") "Aprovador" else "Cadastrador"
+                        Toast.makeText(requireContext(), "Papel atualizado!", Toast.LENGTH_SHORT).show()
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("FirebaseError", "Erro ao recuperar dados: ${error.message}")
-                }
-            })
-    }
-
-    private fun updateUser() {
-        val name = registerNameEditText.text.toString().trim()
-        val endereco = registerEnderecoEditText.text.toString().trim()
-
-        val user = auth.currentUser
-
-        if (user != null) {
-            updateProfile(user, name, endereco)
-        } else {
-            Toast.makeText(context, "Usuário não encontrado", Toast.LENGTH_SHORT).show()
+                .show()
         }
-    }
 
-    private fun updateProfile(user: FirebaseUser, displayName: String, endereco: String) {
-
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setDisplayName(displayName)
-            .build()
-
-        val usuario = Usuario(
-            user.uid,
-            displayName,
-            user.email,
-            endereco
-        )
-
-        user.updateProfile(profileUpdates)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    saveUserToDatabase(usuario)
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Erro ao atualizar perfil",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-    }
-
-    private fun saveUserToDatabase(usuario: Usuario) {
-        usersReference.child(usuario.key!!)
-            .setValue(usuario)
-            .addOnSuccessListener {
-                Toast.makeText(
-                    context,
-                    "Usuário atualizado com sucesso!",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                // 🔥 REMOVIDO o popBackStack (causava retorno ao login)
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    context,
-                    "Erro ao salvar usuário",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        btnSair.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+        }
     }
 }

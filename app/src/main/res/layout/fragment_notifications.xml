@@ -1,22 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.notifications.NotificationsFragment">
+    android:orientation="vertical"
+    android:background="#0a0a14">
 
-    <TextView
-        android:id="@+id/text_notifications"
+    <!-- Header -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aprovações"
+                android:textColor="#888888"
+                android:textSize="13sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NOTIFICAÇÕES"
+                android:textColor="#ffffff"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.2"/>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardPapel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#7c3aed33"
+            app:cardElevation="0dp">
+            <TextView
+                android:id="@+id/tvPapel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:text="Cadastrador"
+                android:textColor="#a78bfa"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+    <!-- Trocar papel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Seu papel no sistema"
+            android:textColor="#555577"
+            android:textSize="12sp"/>
+
+        <Button
+            android:id="@+id/btnTrocarPapel"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="Trocar"
+            android:textSize="11sp"
+            android:backgroundTint="#12122a"
+            android:textColor="#a78bfa"
+            android:paddingHorizontal="12dp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#12122a"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <!-- Texto vazio -->
+    <TextView
+        android:id="@+id/tvVazio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nenhuma notificação"
+        android:textColor="#555577"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:paddingTop="48dp"/>
+
+    <!-- Lista -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/containerNotificacoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="80dp"/>
+    </ScrollView>
+
+</LinearLayout>

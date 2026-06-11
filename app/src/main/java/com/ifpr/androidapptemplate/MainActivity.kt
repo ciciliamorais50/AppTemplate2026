@@ -7,6 +7,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.ifpr.androidapptemplate.databinding.ActivityMainBinding
+import com.ifpr.androidapptemplate.ui.firebase.MyFirebaseMessagingService
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,5 +31,15 @@ class MainActivity : AppCompatActivity() {
         )
 
         navView.setupWithNavController(navController)
+
+        // Monitora materiais pendentes e dispara notificação para aprovadores
+        MyFirebaseMessagingService.monitorarPendentes(this)
+
+        // Navega para notificações se aberto via notificação
+        intent.getStringExtra("nav_to")?.let { destino ->
+            if (destino == "notifications") {
+                navController.navigate(R.id.navigation_notifications)
+            }
+        }
     }
 }

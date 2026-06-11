@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#555577"
+        android:textSize="11sp"
+        android:letterSpacing="0.05"/>
+
+    <TextView
+        android:id="@+id/tvValor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#e0e0f0"
+        android:textSize="14sp"
+        android:layout_marginTop="2dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1e1e3a"
+        android:layout_marginTop="12dp"/>
+
+</LinearLayout>

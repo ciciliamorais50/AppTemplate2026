@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0a0a14">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#12122a">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#12122a"
+            app:titleTextColor="#a78bfa" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/labelClasse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CLASSE DO MATERIAL"
+                android:textColor="#a78bfa"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="6dp" />
+
+            <Spinner
+                android:id="@+id/spinnerClasse"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_input"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Separador -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DADOS TÉCNICOS"
+                android:textColor="#a78bfa"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Card envolvendo os campos -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#12122a"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:id="@+id/containerCampos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp"/>
+
+            </androidx.cardview.widget.CardView>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <Button
+                android:id="@+id/btnSalvar"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="CADASTRAR MATERIAL"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:letterSpacing="0.1"
+                android:backgroundTint="#7c3aed"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="32dp" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

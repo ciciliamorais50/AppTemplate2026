@@ -8,7 +8,6 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.view.*
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -16,14 +15,10 @@ import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.ifpr.androidapptemplate.R
-import com.ifpr.androidapptemplate.baseclasses.Item
-import com.ifpr.androidapptemplate.ui.ai.AiLogicActivity
+import com.ifpr.androidapptemplate.ui.cadastro.ClassesMaterial
+import com.ifpr.androidapptemplate.ui.cadastro.ListaMaterialActivity
+import com.ifpr.androidapptemplate.ui.cadastro.LocationHolder
 import java.util.Locale
 
 class HomeFragment : Fragment() {
@@ -31,13 +26,8 @@ class HomeFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
     private lateinit var currentAddressTextView: TextView
-    private lateinit var distanciaTextView: TextView
-    private lateinit var btnCalcularDistancia: Button
+    private lateinit var tvStatusGps: TextView
     private var ultimaLocalizacao: Location? = null
-
-    private val PONTO_FIXO_LAT = -26.4837
-    private val PONTO_FIXO_LNG = -51.9978
-    private val PONTO_FIXO_NOME = "IFPR Campus Palmas"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,24 +37,13 @@ class HomeFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         currentAddressTextView = view.findViewById(R.id.currentAddressTextView)
-        distanciaTextView = view.findViewById(R.id.distanciaTextView)
-        btnCalcularDistancia = view.findViewById(R.id.btnCalcularDistancia)
+        tvStatusGps = view.findViewById(R.id.tvStatusGps)
 
-        btnCalcularDistancia.setOnClickListener {
-            val loc = ultimaLocalizacao
-            if (loc != null) {
-                calcularDistancia(loc)
-            } else {
-                Toast.makeText(context, "Aguarde, obtendo localização...", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        val itemContainer = view.findViewById<LinearLayout>(R.id.itemContainer)
-        carregarItens(itemContainer)
+        montarCardsClasses(view)
 
         val fab = view.findViewById<FloatingActionButton>(R.id.fab_ai)
         fab.setOnClickListener {
-            val intent = Intent(view.context, AiLogicActivity::class.java)
+            val intent = Intent(view.context, com.ifpr.androidapptemplate.ui.ai.AiLogicActivity::class.java)
             view.context.startActivity(intent)
         }
 
@@ -74,10 +53,32 @@ class HomeFragment : Fragment() {
         return view
     }
 
+    private fun montarCardsClasses(view: View) {
+        val container = view.findViewById<LinearLayout>(R.id.containerClasses)
+        val inflater = LayoutInflater.from(requireContext())
+
+        for (classe in ClassesMaterial.classes) {
+            val card = inflater.inflate(R.layout.item_classe_home, container, false)
+
+            card.findViewById<TextView>(R.id.tvIconeClasse).text = classe.icone
+            card.findViewById<TextView>(R.id.tvNomeClasse).text = classe.nome
+            card.findViewById<TextView>(R.id.tvQtdCampos).text =
+                "${classe.campos.size} campos técnicos"
+
+            card.setOnClickListener {
+                val intent = Intent(requireContext(), ListaMaterialActivity::class.java)
+                intent.putExtra("classe_id", classe.id)
+                intent.putExtra("classe_nome", classe.nome)
+                startActivity(intent)
+            }
+
+            container.addView(card)
+        }
+    }
+
     private fun iniciarLocalizacao() {
         if (ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
@@ -92,15 +93,13 @@ class HomeFragment : Fragment() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
                 ultimaLocalizacao = location
+                LocationHolder.latitude = location.latitude
+                LocationHolder.longitude = location.longitude
                 obterEndereco(location.latitude, location.longitude)
             }
         }
 
-        fusedLocationClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback,
-            Looper.getMainLooper()
-        )
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     private fun obterEndereco(lat: Double, lng: Double) {
@@ -108,11 +107,12 @@ class HomeFragment : Fragment() {
             val geocoder = Geocoder(requireContext(), Locale.getDefault())
             val enderecos = geocoder.getFromLocation(lat, lng, 1)
             if (!enderecos.isNullOrEmpty()) {
-                val endereco = enderecos[0]
-                val rua = endereco.thoroughfare ?: ""
-                val cidade = endereco.locality ?: ""
-                val estado = endereco.adminArea ?: ""
-                currentAddressTextView.text = "📍 $rua, $cidade - $estado"
+                val e = enderecos[0]
+                val endereco = "${e.thoroughfare ?: ""}, ${e.locality ?: ""} - ${e.adminArea ?: ""}"
+                currentAddressTextView.text = "📍 $endereco"
+                LocationHolder.endereco = endereco
+                tvStatusGps.text = "GPS ✓"
+                tvStatusGps.setTextColor(0xFF22c55e.toInt())
             } else {
                 currentAddressTextView.text = "📍 Endereço não encontrado"
             }
@@ -121,81 +121,16 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun calcularDistancia(location: Location) {
-        val pontoFixo = Location("pontoFixo").apply {
-            latitude = PONTO_FIXO_LAT
-            longitude = PONTO_FIXO_LNG
-        }
-
-        val distanciaMetros = location.distanceTo(pontoFixo)
-
-        val distanciaFormatada = if (distanciaMetros >= 1000) {
-            "%.1f km".format(distanciaMetros / 1000)
-        } else {
-            "%.0f m".format(distanciaMetros)
-        }
-
-        distanciaTextView.text = "🏫 Distância até $PONTO_FIXO_NOME: $distanciaFormatada"
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == 1001 && grantResults.isNotEmpty() &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             iniciarLocalizacao()
-        } else {
-            currentAddressTextView.text = "📍 Permissão de localização negada"
-        }
+        else
+            currentAddressTextView.text = "📍 Permissão negada"
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (::locationCallback.isInitialized) {
+        if (::locationCallback.isInitialized)
             fusedLocationClient.removeLocationUpdates(locationCallback)
-        }
-    }
-
-    private fun carregarItens(container: LinearLayout) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
-            Toast.makeText(context, "Usuário não autenticado!", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val ref = FirebaseDatabase.getInstance("https://conversor-de-unidades-8181f-default-rtdb.firebaseio.com")
-            .getReference("itens")
-            .child(uid)
-        container.removeAllViews()
-
-        ref.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                container.removeAllViews()
-                for (itemSnap in snapshot.children) {
-                    val item = itemSnap.getValue(Item::class.java)
-
-                    val itemView = LayoutInflater.from(container.context)
-                        .inflate(R.layout.item_template, container, false)
-
-                    itemView.findViewById<TextView>(R.id.titulo).text =
-                        item?.identificador ?: "Não informado"
-                    itemView.findViewById<TextView>(R.id.descricao).text =
-                        item?.valor ?: "Não informado"
-
-                    container.addView(itemView)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(
-                    context,
-                    "Erro ao carregar dados: ${error.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        })
     }
 }
